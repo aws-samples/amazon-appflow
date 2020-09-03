@@ -1,4 +1,4 @@
-## My Project
+## Amazon AppFlow Code Samples
 
 TODO: Fill this README out!
 
