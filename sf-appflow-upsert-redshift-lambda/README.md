@@ -1,4 +1,4 @@
-## Extract salesforce objects using Amazon AppFlow, upsert to tables in Redshift running in private subnet using data API called from AWS Lambda
+## Extract salesforce data using Amazon AppFlow and upsert it to Redshift tables hosted on private subnet using data APIs
 
 [Amazon AppFlow](https://aws.amazon.com/appflow/) is a fully managed integration service that enables you to securely transfer data between Software-as-a-Service (SaaS) applications like Salesforce, Marketo, Slack, and ServiceNow, and AWS services like Amazon S3 and Amazon Redshift, in just a few clicks. Most customers would run their Redshift cluster in their private subnet hence AppFlow would not be able to load data to the Redshift cluster running in private subnet. Additionally you may also want to upsert data to your Data Warehouse or Redshift Cluster as opposed to just insert. 
 
@@ -32,23 +32,23 @@ The following architecture diagram shows how AppFlow can consume Salesforce data
 
 ----
 
-## 1. [Create a Salesforce developer account and extract data using AppFlow](AppFlow_extract_from_Salesforce.md)
+#### 1. [Create a Salesforce developer account and extract data using AppFlow](AppFlow_extract_from_Salesforce.md)
 
 ----
 
-## 2. [Create VPC, S3, Glue](Create_VPC_S3_Glue.md)
+#### 2. [Create VPC, S3, Glue](Create_VPC_S3_Glue.md)
 
 ----
 
-## 3. [Set up the Redshift Cluster in private subnet](Create_Redshift_Private.md)
+#### 3. [Set up the Redshift Cluster in private subnet](Create_Redshift_Private.md)
 
 ----
 
-## 4. [Create Lambda, its layers, triggers, destination](Create_Lambda_Layers_Triggers_Destination.md)
+#### 4. [Create Lambda, its layers, triggers, destination](Create_Lambda_Layers_Triggers_Destination.md)
 
 ----
 
-## 5. Run the flow, sfdev-account.
+#### 5. Run the flow, sfdev-account.
 
 Before running the flow named _**sfdev-account**_
 1. Change the _**new_bucket_name**_ variable value to appropriate data lake bucket name in the lambda function, _**f_lambda_move_to_stage_account**_
