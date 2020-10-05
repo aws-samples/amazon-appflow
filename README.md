@@ -1,33 +1,22 @@
-## Amazon AppFlow Code Samples
+## Amazon AppFlow Samples/ Blogs
+
+This repository contains example code snippets, blogs and demos for showing how Amazon AppFlow can be used to securely transfer data between SaaS applications (like Salesforce, Marketo, Slack, etc.) and AWS services (like Amazon S3 and Amazon Redshift).
+
+To learn more about Amazon AppFlow visit: https://aws.amazon.com/appflow/
+
+## Samples/ Blogs
+
+| Topic                                                    | Description                                                |
+| ----------------------------------------------------------- | ---------------------------------------------------------- |
+| [Upsert Salesforce data in Amazon Redshift](sf-appflow-upsert-redshift-lambda/README.md) | Extract salesforce data using Amazon AppFlow and upsert it to Redshift tables hosted on private subnet using data APIs|
 
 
-TODO: Fill this README out!
 
-Be sure to:
+## Other Resources
 
-* Change the title in this README
-* Edit your repository description on GitHub
+- [Product Information](https://aws.amazon.com/appflow/)
+- [Getting Started Content:](https://aws.amazon.com/appflow/getting-started/)
 
-----
+## License Summary
 
-## 1. [Extract salesforce objects using Amazon AppFlow, upsert to tables in Redshift running in private subnet using data API called from AWS Lambda](sf-appflow-upsert-redshift-lambda/README.md)
-
-----
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## Code of Conduct
-
-See [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) for more information.
-
-## Contributing Guidelines
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
-This library is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file.
-
-### Temprory changes this side. 
+The sample code is made available under the MIT-0 license. See the LICENSE file.
