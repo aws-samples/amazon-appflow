@@ -1,10 +1,12 @@
-Amazon AppFlow now supports AWS CloudFormation for creating and configuring Amazon AppFlow resources such as Connector profile and Amazon AppFlow Flow along with the rest of your AWS infrastructure—in a secure, efficient, and repeatable way. The Amazon AppFlow APIs and SDK give developers programmatic access to Amazon AppFlow functionality, enabling developers to set up flows between source and destinations supported by Amazon AppFlow, create connector profiles and execute flows programmatically.  
+### CloudFormation Template for Amazon AppFlow
+
+Amazon AppFlow supports AWS CloudFormation for creating and configuring Amazon AppFlow resources such as Connector profile and Amazon AppFlow Flow along with the rest of your AWS infrastructure—in a secure, efficient, and repeatable way. The Amazon AppFlow APIs and SDK give developers programmatic access to Amazon AppFlow functionality, enabling developers to set up flows between source and destinations supported by Amazon AppFlow, create connector profiles and execute flows programmatically.  
 
 AWS CloudFormation provides a common language for you to model and provision AWS and third party application resources in your cloud environment. AWS CloudFormation allows you to use programming languages or a simple text file to model and provision, in an automated and secure manner, all the resources needed for your applications across all regions and accounts. This gives you a single source of truth for your AWS and third party resources. AWS CloudFormation support for Amazon AppFlow is available in all regions where Amazon AppFlow is available.  
 
 To learn more about how to use AWS CloudFormation to provision and manage Amazon AppFlow resources , visit our **[documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_AppFlow.html)**.  
 
-**Note:** We have added comments in the template below for the ease of understanding on how CF Template works. You will not be able to run the template if it has comments on it. To use the code as it is, you can use this file which has the code without comments. 
+**Note:** We have added comments in the template below for the ease of understanding on how CF Template works. You will not be able to run the template code if it has comments on it. To use the code as it is, you can use this **[file](https://github.com/aws-samples/amazon-appflow/blob/master/CF-template/cf-template-sfdc-to-s3.json)** which has the code without comments. 
 
 **About CF Template:** This template helps build a flow from Salesforce to S3. 
 
