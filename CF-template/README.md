@@ -6,7 +6,7 @@ AWS CloudFormation provides a common language for you to model and provision AWS
 
 To learn more about how to use AWS CloudFormation to provision and manage Amazon AppFlow resources , visit our **[documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_AppFlow.html)**.  
 
-**Note:** We have added comments in the template below for the ease of understanding on how CF Template works. You will not be able to run the template code if it has comments on it. To use the code as it is, you can use this **[file](https://github.com/aws-samples/amazon-appflow/blob/master/CF-template/cf-template-sfdc-to-s3.json)** which has the code without comments. 
+**Note:** We have added comments in the template below for the ease of understanding on how CF Template works for AppFlow. You will not be able to run the template code if it has comments on it. To use the code as it is, you can use this **[clean file](https://github.com/aws-samples/amazon-appflow/blob/master/CF-template/cf-template-sfdc-to-s3.json)** which has the code without comments. 
 
 **About CF Template:** This template helps build a flow from Salesforce to S3. 
 
@@ -15,7 +15,7 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
 ```js
 {
 	"AWSTemplateFormatVersion": "2010-09-09",
-	"Description": "Sample CloudFormation Template for AppFlow: Sample template showing how to create a flow",
+	"Description": "Sample CloudFormation Template for AppFlow: Sample template shows how to create a flow",
 	"Metadata" : {
 	"AWS::CloudFormation::Interface" : {
     "ParameterGroups" : [
@@ -86,22 +86,22 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
 	"Type" : "AWS::AppFlow::Flow",
 	"Properties" : {
     "Description" : "AppFlow Flow integrating SFDC Account Data into the Data Lake",
-   // properties related to Destination connector
-   // Note: many aws connectors like S3 don't require a connector profile.
-   // Appflow has access to the S3 bucket through a Bucket Resource Policy, therefore a connector profile isn't needed.
+   // properties related to Destination connector.
+   // note: many AWS connectors like Amazon S3 don't require a connector profile.
+   // AppFlow has access to the S3 bucket through a Bucket Resource Policy, therefore a connector profile isn't needed.
     "DestinationFlowConfigList" : [{
   "ConnectorType" : "S3",
   "DestinationConnectorProperties" : {
   "S3":{
   "BucketName" : {"Ref": "S3Bucket"},
   "BucketPrefix" : {"Ref": "Prefix"},
-  // The configuration that determines how Amazon AppFlow should format the flow output data when Amazon S3 is used as the destination
+  // the configuration that determines how Amazon AppFlow should format the flow output data when Amazon S3 is used as the destination.
   "S3OutputFormatConfig" : {
-    // The aggregation settings that you can use to customize the output format of your flow data. Allowed values: None | SingleFile
+    // the aggregation settings that you can use to customize the output format of your flow data. Allowed values: None | SingleFile
   "AggregationConfig" : {
   "AggregationType" : "None"
 },
-// Indicates the file type that Amazon AppFlow places in the Amazon S3 bucket. Allowed values: CSV | JSON | PARQUET
+// indicates the file type that Amazon AppFlow places in the Amazon S3 bucket. Allowed values: CSV | JSON | PARQUET
   "FileType" : "PARQUET"
   }
 }}
@@ -109,27 +109,27 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
     "FlowName" : "SFDCAccount",
     // properties related to Source connector
       "SourceFlowConfig" : {
-    // To create a flow, you must first create a connector profile that contains information about connecting to Salesforce.
-    // ConnectorProfileName is the name for the connector profile created through console or ref to the name if created through cfn template
+    // to create a flow, you must first create a connector profile that contains information about connecting to Salesforce.
+    // ConnectorProfileName is the name for the connector profile created through console or ref to the name if created through CFN template.
   "ConnectorProfileName" : {"Ref": "Connection"},
   "ConnectorType" : "Salesforce",
   "SourceConnectorProperties" :{
   "Salesforce" : {
-  // The flag that enables dynamic fetching of new (recently added) fields in the Salesforce objects while running a flow.
+  // the flag that enables dynamic fetching of new (recently added) fields in the Salesforce objects while running a flow.
   "EnableDynamicFieldUpdate" :false,
-  // Indicates whether Amazon AppFlow includes deleted files in the flow run.
+  // indicates whether Amazon AppFlow includes deleted files in the flow run.
   "IncludeDeletedRecords" :false,
-  // The object specified in the Salesforce flow source. 
+  // the object specified in the flow source (here, Salesforce). 
   "Object" : "Account"
 }
   }
 },
-// Tasks describe what to do with the data once it has been retrieved, but before it is sent to the destination.
-// Most connectors require a projection task. A projection task describes what fields should be retrieved from the source object.
+// "Tasks" describe what to do with the data once it has been retrieved, but before it is sent to the destination.
+// most connectors require a projection task. a projection task describes what fields should be retrieved from the source object.
       "Tasks" : [
         {
-          // Specifies the particular task implementation that Amazon AppFlow performs. Allowed values: Arithmetic | Filter | Map | Mask | Merge | Truncate | Validate
-          // For projecttion tasks, selected task type has to be filter
+          // specifies the particular task implementation that Amazon AppFlow performs. Allowed values: Arithmetic | Filter | Map | Mask | Merge | Truncate | Validate
+          // For projection tasks, selected task type has to be filter
             "TaskType": "Filter",
             "SourceFields": [
             "Id",
@@ -142,18 +142,18 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
             "Industry",
             "AnnualRevenue"
             ],
-            // The operation to be performed on the provided source fields.Valid values can be found at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-connectoroperator.html
+            // define the operation to be performed on the provided source fields. valid values can be found at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-connectoroperator.html
             "ConnectorOperator": {
                 "Salesforce": "PROJECTION"
             }
         },
-        {// Most flows also require at least one mapping task. Mapping tasks map a source field to a destination field. here mapping Id to Id
-         // Note: projected fields will only show up in the destination if they have a mapping task.
+        {// most flows also require at least one mapping task. mapping tasks map a source field to a destination field (here, mapping Id to Id).
+         // note: projected fields will only show up in the destination if they have a mapping task.
             "TaskType": "Map",
             "SourceFields": [
                 "Id"
             ],
-            // A map used to store task-related information. More info at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-taskpropertiesobject.html
+            // a map used to store task-related information. More info at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-taskpropertiesobject.html
             "TaskProperties":[
             		 {
               "Key" : "SOURCE_DATA_TYPE",
