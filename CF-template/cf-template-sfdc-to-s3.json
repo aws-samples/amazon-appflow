@@ -1,0 +1,330 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Sample CloudFormation Template for AppFlow SFDC integration",
+	"Metadata" : {
+	"AWS::CloudFormation::Interface" : {
+    "ParameterGroups" : [
+      {
+        "Label" : { "default" : "Parameters" },
+        "Parameters" : [ "Connection", "S3Bucket","Prefix"]
+      }
+    ],
+    "ParameterLabels" : {
+      "Connection" : { "default" : "SFDC Connection Name" }	,
+	  "S3Bucket" : { "default" : "S3 Bucket Name to write data to" }	  ,
+	  "Prefix" : { "default" : "S3 prefix to be used to write the data - something like SFDCData" }	  
+    }
+  }
+},
+	"Parameters": {
+		"Connection": {
+			"Type": "String"
+		},
+				"S3Bucket": {
+			"Type": "String"
+		},
+				"Prefix": {
+			"Type": "String"
+		}
+	},
+
+
+	"Resources": {
+			
+				"S3bucketpolicy":{
+		"Type" : "AWS::S3::BucketPolicy",
+  "Properties" : {
+      "Bucket" : {"Ref": "S3Bucket"},
+	  "PolicyDocument" : {
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "appflow.amazonaws.com"
+            },
+            "Action": [
+                "s3:PutObject",
+                "s3:AbortMultipartUpload",
+                "s3:ListMultipartUploadParts",
+                "s3:ListBucketMultipartUploads",
+                "s3:GetBucketAcl",
+                "s3:PutObjectAcl"
+            ],
+         "Resource": [{
+									"Fn::Join": ["", ["arn:aws:s3:::", {
+										"Ref": "S3Bucket"
+									}]]
+								},
+								{
+									"Fn::Join": ["", ["arn:aws:s3:::", {
+										"Ref": "S3Bucket"
+									}, "/*"]]
+								}
+							]
+        }
+    ]
+}
+    }
+		},
+	"SFDCFlow" : {
+	"Type" : "AWS::AppFlow::Flow",
+	"Properties" : {
+      "Description" : "AppFlow Flow integrating SFDC Account Data into the Data Lake",
+      "DestinationFlowConfigList" : [{
+  "ConnectorType" : "S3",
+  "DestinationConnectorProperties" : {"S3":{
+  "BucketName" : {"Ref": "S3Bucket"},
+  "BucketPrefix" : {"Ref": "Prefix"},
+  "S3OutputFormatConfig" : {
+  "AggregationConfig" : {
+  "AggregationType" : "None"
+},
+  "FileType" : "PARQUET"
+  }
+}}
+} ],
+      "FlowName" : "SFDCAccount",
+      "SourceFlowConfig" : {
+  "ConnectorProfileName" : {"Ref": "Connection"},
+  "ConnectorType" : "Salesforce",
+  "SourceConnectorProperties" :{
+  "Salesforce" : {
+  "EnableDynamicFieldUpdate" :false,
+  "IncludeDeletedRecords" :false,
+  "Object" : "Account"
+}
+  }
+},
+      "Tasks" : [
+        {
+            "TaskType": "Filter",
+            "SourceFields": [
+                "Id",
+                "Name",
+                "Type",
+				"BillingAddress",
+            "ShippingAddress",
+            "Phone",
+            "Sic",
+            "Industry",
+            "AnnualRevenue"
+            ],
+            "ConnectorOperator": {
+                "Salesforce": "PROJECTION"
+            }
+        },
+        {
+            "TaskType": "Map",
+            "SourceFields": [
+                "Id"
+            ],
+
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "id"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "id"
+}],
+		             "DestinationField": "Id",
+            "ConnectorOperator": {
+                "Salesforce": "NO_OP"
+            }
+        },
+        {
+            "TaskType": "Map",
+            "SourceFields": [
+                "Name"
+            ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "string"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "string"
+}],
+            "DestinationField": "Name",
+            "ConnectorOperator": {
+                "Salesforce": "NO_OP"
+            }
+        },
+        {
+            "TaskType": "Map",
+            "SourceFields": [
+                "Type"
+            ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "picklist"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "picklist"
+}],
+            "DestinationField": "Type",			
+            "ConnectorOperator": {
+                "Salesforce": "NO_OP"
+            }
+        },
+		 {
+         "TaskType":"Map",
+         "SourceFields":[
+            "BillingAddress"
+         ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "address"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "address"
+}],
+         "DestinationField":"BillingAddress",
+         "ConnectorOperator":{
+            "Salesforce":"NO_OP"
+         }
+      },
+      {
+         "TaskType":"Map",
+         "SourceFields":[
+            "ShippingAddress"
+         ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "address"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "address"
+}],
+         "DestinationField":"ShippingAddress",
+         "ConnectorOperator":{
+            "Salesforce":"NO_OP"
+         }
+      },
+     {
+         "TaskType":"Map",
+         "SourceFields":[
+            "Phone"
+         ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "phone"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "phone"
+}],
+         "DestinationField":"Phone",
+         "ConnectorOperator":{
+            "Salesforce":"NO_OP"
+         }
+      },
+     {
+         "TaskType":"Map",
+         "SourceFields":[
+            "Sic"
+         ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "string"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "string"
+}],
+         "DestinationField":"Sic",
+         "ConnectorOperator":{
+            "Salesforce":"NO_OP"
+         }
+      },
+      {
+         "TaskType":"Map",
+         "SourceFields":[
+            "Industry"
+         ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "picklist"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "picklist"
+}],
+         "DestinationField":"Industry",
+         "ConnectorOperator":{
+            "Salesforce":"NO_OP"
+         }
+      },
+      {
+         "TaskType":"Map",
+         "SourceFields":[
+            "AnnualRevenue"
+         ],
+"TaskProperties":[
+		 {
+  "Key" : "SOURCE_DATA_TYPE",
+  "Value" : "currency"
+},
+{
+  "Key" : "DESTINATION_DATA_TYPE",
+  "Value" : "currency"
+}],
+         "DestinationField":"AnnualRevenue",
+         "ConnectorOperator":{
+            "Salesforce":"NO_OP"
+         }
+      },
+	  {
+         "TaskType":"Validate",
+         "SourceFields":[
+            "Id"
+         ],
+  "TaskProperties" : [{
+  "Key" : "VALIDATION_ACTION",
+  "Value" : "DropRecord"
+}],
+         "ConnectorOperator":{
+            "Salesforce":"VALIDATE_NON_NULL"
+         }
+      },
+	  {
+         "taskType":"Mask",
+         "sourceFields":[
+            "Phone"
+         ],
+         "TaskProperties":[
+		 {
+  "Key" : "MASK_LENGTH",
+  "Value" : "5"
+},
+{
+  "Key" : "MASK_VALUE",
+  "Value" : "*"
+}],
+         "connectorOperator":{
+            "Salesforce":"MASK_LAST_N"
+         }
+      }
+
+    ],
+      "TriggerConfig" : {
+  "TriggerType" : "OnDemand"
+}
+    },
+	"DependsOn" : "S3bucketpolicy"
+	}
+		}
+	}
+		
