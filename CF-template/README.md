@@ -14,352 +14,398 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
 
 ```js
 {
-	"AWSTemplateFormatVersion": "2010-09-09",
-	"Description": "Sample CloudFormation Template for AppFlow: Sample template shows how to create a flow",
-	"Metadata" : {
-	"AWS::CloudFormation::Interface" : {
-    "ParameterGroups" : [
-      {
-        "Label" : { "default" : "Parameters" },
-        "Parameters" : [ "Connection", "S3Bucket","Prefix"]
-      }
-    ],
-    "ParameterLabels" : {
-      "Connection" : { "default" : "SFDC Connection Name" }	,
-	  "S3Bucket" : { "default" : "S3 Bucket Name to write data to" }	  ,
-	  "Prefix" : { "default" : "S3 prefix to be used to write the data - something like SFDCData" }	  
-    }
-  }
-},
-	"Parameters": {
-		"Connection": {
-			"Type": "String"
-		},
-				"S3Bucket": {
-			"Type": "String"
-		},
-				"Prefix": {
-			"Type": "String"
-		}
-	},
-
-
-	"Resources": {
-			
-				"S3bucketpolicy":{
-		"Type" : "AWS::S3::BucketPolicy",
-  "Properties" : {
-      "Bucket" : {"Ref": "S3Bucket"},
-	  "PolicyDocument" : {
-    "Version": "2008-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "appflow.amazonaws.com"
-            },
-            "Action": [
-                "s3:PutObject",
-                "s3:AbortMultipartUpload",
-                "s3:ListMultipartUploadParts",
-                "s3:ListBucketMultipartUploads",
-                "s3:GetBucketAcl",
-                "s3:PutObjectAcl"
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Sample CloudFormation Template for AppFlow: Sample template shows how to create a flow",
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Parameters"
+                    },
+                    "Parameters": [
+                        "Connection",
+                        "S3Bucket",
+                        "Prefix"
+                    ]
+                }
             ],
-         "Resource": [{
-									"Fn::Join": ["", ["arn:aws:s3:::", {
-										"Ref": "S3Bucket"
-									}]]
-								},
-								{
-									"Fn::Join": ["", ["arn:aws:s3:::", {
-										"Ref": "S3Bucket"
-									}, "/*"]]
-								}
-							]
+            "ParameterLabels": {
+                "Connection": {
+                    "default": "SFDC Connection Name"
+                },
+                "S3Bucket": {
+                    "default": "S3 Bucket Name to write data to"
+                },
+                "Prefix": {
+                    "default": "S3 prefix to be used to write the data - something like SFDCData"
+                }
+            }
         }
-    ]
-}
-    }
-		},
-	"SFDCFlow" : {
-	"Type" : "AWS::AppFlow::Flow",
-	"Properties" : {
-    "Description" : "AppFlow Flow integrating SFDC Account Data into the Data Lake",
-   // properties related to Destination connector.
-   // note: many AWS connectors like Amazon S3 don't require a connector profile.
-   // AppFlow has access to the S3 bucket through a Bucket Resource Policy, therefore a connector profile isn't needed.
-    "DestinationFlowConfigList" : [{
-  "ConnectorType" : "S3",
-  "DestinationConnectorProperties" : {
-  "S3":{
-  "BucketName" : {"Ref": "S3Bucket"},
-  "BucketPrefix" : {"Ref": "Prefix"},
-  // the configuration that determines how Amazon AppFlow should format the flow output data when Amazon S3 is used as the destination.
-  "S3OutputFormatConfig" : {
-    // the aggregation settings that you can use to customize the output format of your flow data. Allowed values: None | SingleFile
-  "AggregationConfig" : {
-  "AggregationType" : "None"
-},
-// indicates the file type that Amazon AppFlow places in the Amazon S3 bucket. Allowed values: CSV | JSON | PARQUET
-  "FileType" : "PARQUET"
-  }
-}}
-} ],
-    "FlowName" : "SFDCAccount",
-    // properties related to Source connector
-      "SourceFlowConfig" : {
-    // to create a flow, you must first create a connector profile that contains information about connecting to Salesforce.
-    // ConnectorProfileName is the name for the connector profile created through console or ref to the name if created through CFN template.
-  "ConnectorProfileName" : {"Ref": "Connection"},
-  "ConnectorType" : "Salesforce",
-  "SourceConnectorProperties" :{
-  "Salesforce" : {
-  // the flag that enables dynamic fetching of new (recently added) fields in the Salesforce objects while running a flow.
-  "EnableDynamicFieldUpdate" :false,
-  // indicates whether Amazon AppFlow includes deleted files in the flow run.
-  "IncludeDeletedRecords" :false,
-  // the object specified in the flow source (here, Salesforce). 
-  "Object" : "Account"
-}
-  }
-},
-// "Tasks" describe what to do with the data once it has been retrieved, but before it is sent to the destination.
-// most connectors require a projection task. a projection task describes what fields should be retrieved from the source object.
-      "Tasks" : [
-        {
-          // specifies the particular task implementation that Amazon AppFlow performs. Allowed values: Arithmetic | Filter | Map | Mask | Merge | Truncate | Validate
-          // For projection tasks, selected task type has to be filter
-            "TaskType": "Filter",
-            "SourceFields": [
-            "Id",
-            "Name",
-            "Type",
-				    "BillingAddress",
-            "ShippingAddress",
-            "Phone",
-            "Sic",
-            "Industry",
-            "AnnualRevenue"
-            ],
-            // define the operation to be performed on the provided source fields. valid values can be found at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-connectoroperator.html
-            "ConnectorOperator": {
-                "Salesforce": "PROJECTION"
-            }
-        },
-        {// most flows also require at least one mapping task. mapping tasks map a source field to a destination field (here, mapping Id to Id).
-         // note: projected fields will only show up in the destination if they have a mapping task.
-            "TaskType": "Map",
-            "SourceFields": [
-                "Id"
-            ],
-            // a map used to store task-related information. More info at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-taskpropertiesobject.html
-            "TaskProperties":[
-            		 {
-              "Key" : "SOURCE_DATA_TYPE",
-              "Value" : "id"
-            },
-            {
-              "Key" : "DESTINATION_DATA_TYPE",
-              "Value" : "id"
-            }],
-            "DestinationField": "Id",
-            "ConnectorOperator": {
-                "Salesforce": "NO_OP"
-            }
-        },
-        {
-            "TaskType": "Map",
-            "SourceFields": [
-                "Name"
-            ],
-            "TaskProperties":[
-            		 {
-              "Key" : "SOURCE_DATA_TYPE",
-              "Value" : "string"
-            },
-            {
-              "Key" : "DESTINATION_DATA_TYPE",
-              "Value" : "string"
-            }],
-            "DestinationField": "Name",
-            "ConnectorOperator": {
-                "Salesforce": "NO_OP"
-            }
-        },
-        {
-            "TaskType": "Map",
-            "SourceFields": [
-                "Type"
-            ],
-            "TaskProperties":[
-            		 {
-              "Key" : "SOURCE_DATA_TYPE",
-              "Value" : "picklist"
-            },
-            {
-              "Key" : "DESTINATION_DATA_TYPE",
-              "Value" : "picklist"
-            }],
-            "DestinationField": "Type",			
-            "ConnectorOperator": {
-                "Salesforce": "NO_OP"
-            }
-        },
-		 {
-         "TaskType":"Map",
-         "SourceFields":[
-            "BillingAddress"
-         ],
-          "TaskProperties":[
-          		 {
-            "Key" : "SOURCE_DATA_TYPE",
-            "Value" : "address"
-          },
-          {
-            "Key" : "DESTINATION_DATA_TYPE",
-            "Value" : "address"
-          }],
-         "DestinationField":"BillingAddress",
-         "ConnectorOperator":{
-            "Salesforce":"NO_OP"
-         }
-      },
-      {
-         "TaskType":"Map",
-         "SourceFields":[
-            "ShippingAddress"
-         ],
-          "TaskProperties":[
-          		 {
-            "Key" : "SOURCE_DATA_TYPE",
-            "Value" : "address"
-          },
-          {
-            "Key" : "DESTINATION_DATA_TYPE",
-            "Value" : "address"
-          }],
-         "DestinationField":"ShippingAddress",
-         "ConnectorOperator":{
-            "Salesforce":"NO_OP"
-         }
-      },
-     {
-         "TaskType":"Map",
-         "SourceFields":[
-            "Phone"
-         ],
-          "TaskProperties":[
-          		 {
-            "Key" : "SOURCE_DATA_TYPE",
-            "Value" : "phone"
-          },
-          {
-            "Key" : "DESTINATION_DATA_TYPE",
-            "Value" : "phone"
-          }],
-         "DestinationField":"Phone",
-         "ConnectorOperator":{
-            "Salesforce":"NO_OP"
-         }
-      },
-     {
-         "TaskType":"Map",
-         "SourceFields":[
-            "Sic"
-         ],
-          "TaskProperties":[
-          		 {
-            "Key" : "SOURCE_DATA_TYPE",
-            "Value" : "string"
-          },
-          {
-            "Key" : "DESTINATION_DATA_TYPE",
-            "Value" : "string"
-          }],
-         "DestinationField":"Sic",
-         "ConnectorOperator":{
-            "Salesforce":"NO_OP"
-         }
-      },
-      {
-         "TaskType":"Map",
-         "SourceFields":[
-            "Industry"
-         ],
-          "TaskProperties":[
-          		 {
-            "Key" : "SOURCE_DATA_TYPE",
-            "Value" : "picklist"
-          },
-          {
-            "Key" : "DESTINATION_DATA_TYPE",
-            "Value" : "picklist"
-          }],
-         "DestinationField":"Industry",
-         "ConnectorOperator":{
-            "Salesforce":"NO_OP"
-         }
-      },
-      {
-         "TaskType":"Map",
-         "SourceFields":[
-            "AnnualRevenue"
-         ],
-          "TaskProperties":[
-          		 {
-            "Key" : "SOURCE_DATA_TYPE",
-            "Value" : "currency"
-          },
-          {
-            "Key" : "DESTINATION_DATA_TYPE",
-            "Value" : "currency"
-          }],
-         "DestinationField":"AnnualRevenue",
-         "ConnectorOperator":{
-            "Salesforce":"NO_OP"
-         }
-      },
-	  {
-         "TaskType":"Validate",
-         "SourceFields":[
-            "Id"
-         ],
-          "TaskProperties" : [{
-          "Key" : "VALIDATION_ACTION",
-          "Value" : "DropRecord"
-        }],
-         "ConnectorOperator":{
-            "Salesforce":"VALIDATE_NON_NULL"
-         }
-      },
-	  {
-         "taskType":"Mask",
-         "sourceFields":[
-            "Phone"
-         ],
-         "TaskProperties":[
-        {
-          "Key" : "MASK_LENGTH",
-          "Value" : "5"
-        },
-        {
-          "Key" : "MASK_VALUE",
-          "Value" : "*"
-        }],
-         "connectorOperator":{
-            "Salesforce":"MASK_LAST_N"
-         }
-      }
-
-    ],
-      "TriggerConfig" : {// configuration related to trigger type: OnDemand, Scheduled, Event
-  "TriggerType" : "OnDemand"
-}
     },
-	"DependsOn" : "S3bucketpolicy"
-	}
-		}
-	}
-		
+    "Parameters": {
+        "Connection": {
+            "Type": "String"
+        },
+        "S3Bucket": {
+            "Type": "String"
+        },
+        "Prefix": {
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "S3bucketpolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "Bucket": {
+                    "Ref": "S3Bucket"
+                },
+                "PolicyDocument": {
+                    "Version": "2008-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "appflow.amazonaws.com"
+                            },
+                            "Action": [
+                                "s3:PutObject",
+                                "s3:AbortMultipartUpload",
+                                "s3:ListMultipartUploadParts",
+                                "s3:ListBucketMultipartUploads",
+                                "s3:GetBucketAcl",
+                                "s3:PutObjectAcl"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "S3Bucket"
+                                            }
+                                        ]
+                                    ]
+                                },
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "S3Bucket"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "SFDCFlow": {
+            "Type": "AWS::AppFlow::Flow",
+            "Properties": {
+                "Description": "AppFlow Flow integrating SFDC Account Data into the Data Lake",
+                // Properties related to Destination connector.
+                // Note: many AWS connectors like AmazonS3 don't require a connector profile.
+                // AppFlow has access to the S3 bucket through a BucketResourcePolicy, therefore a connectorprofile isn't needed.
+                "DestinationFlowConfigList": [
+                    {
+                        "ConnectorType": "S3",
+                        "DestinationConnectorProperties": {
+                            "S3": {
+                                "BucketName": {
+                                    "Ref": "S3Bucket"
+                                },
+                                "BucketPrefix": {
+                                    "Ref": "Prefix"
+                                },
+                                //the configuration that determine show Amazon AppFlow should format the flow output data when AmazonS3 is used as the destination.
+                                "S3OutputFormatConfig": {
+                                    //the aggregation settings that you can use to customize the output format of your flowdata. Allowed values: None|SingleFile
+                                    "AggregationConfig": {
+                                        "AggregationType": "None"
+                                    },
+                                    //indicates the file type that AmazonAppFlow places in the AmazonS3 bucket.Allowed values: CSV|JSON|PARQUET
+                                    "FileType": "PARQUET"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "FlowName": "SFDCAccount",
+                // Properties related to Source connector
+                "SourceFlowConfig": {
+                    // To create a flow,you must first create a connector profile that contains information about connecting to Salesforce.
+                    // ConnectorProfileName is the name for the connector profile created through console or ref to the resource if created through CFN template.
+                    "ConnectorProfileName": {
+                        "Ref": "Connection"
+                    },
+                    "ConnectorType": "Salesforce",
+                    "SourceConnectorProperties": {
+                        "Salesforce": {
+                            // The flag that enables dynamic fetching of new(recently added) fields in the Salesforce objects while running a flow.
+                            "EnableDynamicFieldUpdate": false,
+                            // Indicates whether AmazonAppFlow includes deleted files in the flow run.
+                            "IncludeDeletedRecords": false,
+                            // The object specified in the flow source (here, Salesforce).
+                            "Object": "Account"
+                        }
+                    }
+                },
+                // "Tasks" describe what to do with the data once it has been retrieved, but before it is sent to the destination.
+                // Most connectors require a projection task, a projection task describes what fields should be retrieved from the source object.
+                "Tasks": [
+                    {
+                        // Specifies the particular task implementation that AmazonAppFlow performs. Allowed values: Arithmetic|Filter|Map|Mask|Merge|Truncate|Validate
+                        // For projection tasks, selected task type has to be filter
+                        "TaskType": "Filter",
+                        "SourceFields": [
+                            "Id",
+                            "Name",
+                            "Type",
+                            "BillingAddress",
+                            "ShippingAddress",
+                            "Phone",
+                            "Sic",
+                            "Industry",
+                            "AnnualRevenue"
+                        ],
+                        // Define the operation to be performed on the provided source fields.Allowed values can be found at https: //docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-connectoroperator.html
+                        "ConnectorOperator": {
+                            "Salesforce": "PROJECTION"
+                        }
+                    },
+                    {
+                        // Most flows also require atleast one mapping task. mapping tasks map a source field to a destination field (here, mapping Id to Id).
+                        // Note: projected fields will only showup in the destination if they have a mapping task.
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "Id"
+                        ],
+                        // A map used to store task-related information. More info at https: //docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appflow-flow-taskpropertiesobject.html
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "id"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "id"
+                            }
+                        ],
+                        "DestinationField": "Id",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "Name"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "string"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "string"
+                            }
+                        ],
+                        "DestinationField": "Name",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "Type"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "picklist"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "picklist"
+                            }
+                        ],
+                        "DestinationField": "Type",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "BillingAddress"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "address"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "address"
+                            }
+                        ],
+                        "DestinationField": "BillingAddress",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "ShippingAddress"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "address"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "address"
+                            }
+                        ],
+                        "DestinationField": "ShippingAddress",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "Phone"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "phone"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "phone"
+                            }
+                        ],
+                        "DestinationField": "Phone",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "Sic"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "string"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "string"
+                            }
+                        ],
+                        "DestinationField": "Sic",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "Industry"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "picklist"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "picklist"
+                            }
+                        ],
+                        "DestinationField": "Industry",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Map",
+                        "SourceFields": [
+                            "AnnualRevenue"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "SOURCE_DATA_TYPE",
+                                "Value": "currency"
+                            },
+                            {
+                                "Key": "DESTINATION_DATA_TYPE",
+                                "Value": "currency"
+                            }
+                        ],
+                        "DestinationField": "AnnualRevenue",
+                        "ConnectorOperator": {
+                            "Salesforce": "NO_OP"
+                        }
+                    },
+                    {
+                        "TaskType": "Validate",
+                        "SourceFields": [
+                            "Id"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "VALIDATION_ACTION",
+                                "Value": "DropRecord"
+                            }
+                        ],
+                        "ConnectorOperator": {
+                            "Salesforce": "VALIDATE_NON_NULL"
+                        }
+                    },
+                    {
+                        "taskType": "Mask",
+                        "sourceFields": [
+                            "Phone"
+                        ],
+                        "TaskProperties": [
+                            {
+                                "Key": "MASK_LENGTH",
+                                "Value": "5"
+                            },
+                            {
+                                "Key": "MASK_VALUE",
+                                "Value": "*"
+                            }
+                        ],
+                        "connectorOperator": {
+                            "Salesforce": "MASK_LAST_N"
+                        }
+                    }
+                ],
+                "TriggerConfig": {
+                    // Configuration related to trigger type: OnDemand, Scheduled, Event
+                    "TriggerType": "OnDemand"
+                }
+            },
+            "DependsOn": "S3bucketpolicy"
+        }
+    }
+}		
 ```
