@@ -16,7 +16,7 @@ To learn more about Amazon AppFlow visit: https://aws.amazon.com/appflow/
 
 | Topic                                                    | Description                                                |
 | ----------------------------------------------------------- | ---------------------------------------------------------- |
-| [How to run sentiment analysis on slack data using Amazon AppFlow with Amazon Comprehend](slack-appflow-sentiment/README.md) | Extract Slack conversations data from Slack to S3 using AppFlow and run sentiment analysis using Amazon Comprehend and Amazon SageMaker|
+| [How to run sentiment analysis on slack data using Amazon AppFlow with Amazon Comprehend](slack-appflow-sentiment/README.md) | Extract conversations data from Slack to S3 using AppFlow and run sentiment analysis on it using Amazon Comprehend and Amazon SageMaker|
 
 
 ## Other Resources
