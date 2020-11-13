@@ -12,6 +12,11 @@ To learn more about Amazon AppFlow visit: https://aws.amazon.com/appflow/
 | [Setup EventBridge & route Salesforce Events to Lambda](https://aws.amazon.com/blogs/compute/building-salesforce-integrations-with-amazon-eventbridge/) | How to set up the integration, and route Salesforce events to an AWS Lambda function for processing|
 | [CloudFormation Template to build a flow from Salesforce to S3](https://github.com/aws-samples/amazon-appflow/tree/master/CF-template) | How to use AWS CloudFormation to setup a flow on AppFlow|
 
+## Demos
+
+| Topic                                                    | Description                                                |
+| ----------------------------------------------------------- | ---------------------------------------------------------- |
+| [How to run sentiment analysis on slack data using Amazon AppFlow with Amazon Comprehend](slack-appflow-sentiment/README.md) | Run sentiment analysis on slack data extracted to S3 using Amazon Comprehend and Amazon SageMaker|
 
 
 ## Other Resources
