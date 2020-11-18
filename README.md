@@ -8,9 +8,10 @@ To learn more about Amazon AppFlow visit: https://aws.amazon.com/appflow/
 
 | Topic                                                    | Description                                                |
 | ----------------------------------------------------------- | ---------------------------------------------------------- |
+| [CloudFormation Template to build a flow from Salesforce to S3](https://github.com/aws-samples/amazon-appflow/tree/master/CF-template) | How to use AWS CloudFormation to setup a flow on AppFlow|
+| [AppFlow API Samples](https://docs.aws.amazon.com/appflow/1.0/APIReference/API_Operations.html) | How to use AppFlow APIs to setup flows and connector profiles|
 | [Upsert Salesforce data into Redshift (private subnet) with S3 work around](sf-appflow-upsert-redshift-lambda/README.md) | Extract salesforce data using Amazon AppFlow and upsert it to Redshift tables hosted on private subnet via Amazon S3|
 | [Setup EventBridge & route Salesforce Events to Lambda](https://aws.amazon.com/blogs/compute/building-salesforce-integrations-with-amazon-eventbridge/) | How to set up the integration, and route Salesforce events to an AWS Lambda function for processing|
-| [CloudFormation Template to build a flow from Salesforce to S3](https://github.com/aws-samples/amazon-appflow/tree/master/CF-template) | How to use AWS CloudFormation to setup a flow on AppFlow|
 
 ## Demos
 
