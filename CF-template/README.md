@@ -4,7 +4,7 @@ Amazon AppFlow supports AWS CloudFormation for creating and configuring Amazon A
 
 AWS CloudFormation provides a common language for you to model and provision AWS and third party application resources in your cloud environment. AWS CloudFormation allows you to use programming languages or a simple text file to model and provision, in an automated and secure manner, all the resources needed for your applications across all regions and accounts. This gives you a single source of truth for your AWS and third party resources. AWS CloudFormation support for Amazon AppFlow is available in all regions where Amazon AppFlow is available.  
 
-To learn more about how to use AWS CloudFormation to provision and manage Amazon AppFlow resources , visit our **[documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_AppFlow.html)**.  
+To learn more about how to use AWS CloudFormation to provision and manage Amazon AppFlow resources, visit our **[documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_AppFlow.html)**.  
 
 **Note:** We have added comments in the template below for the ease of understanding on how CF Template works for AppFlow. You will not be able to run the template code if it has comments on it. To use the code as it is, you can use this **[clean file](https://github.com/aws-samples/amazon-appflow/blob/master/CF-template/cf-template-sfdc-to-s3.json)** which has the code without comments. 
 
