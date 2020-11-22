@@ -6,7 +6,7 @@ Here I am going to demonstrate how you can extract conversations from slack usin
 
 
 ## Demonstration Video
-[How to run sentiment analysis on slack data using Amazon AppFlow with Amazon Comprehend]()
+[How to run sentiment analysis on slack data using Amazon AppFlow with Amazon Comprehend](https://youtu.be/fCHkIwbcRtg)
 
 ## SageMaker Notebook
 Notebook Link: https://github.com/aws-samples/amazon-appflow/blob/master/slack-appflow-sentiment/notebooks/slack-sentiment.ipynb
