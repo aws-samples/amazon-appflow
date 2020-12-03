@@ -47,7 +47,7 @@
                     "Ref": "S3Bucket"
                 },
                 "PolicyDocument": {
-                    "Version": "2008-10-17",
+                    "Version": "2012-10-17",
                     "Statement": [
                         {
                             "Effect": "Allow",
@@ -345,8 +345,8 @@
                         }
                     },
                     {
-                        "taskType": "Mask",
-                        "sourceFields": [
+                        "TaskType": "Mask",
+                        "SourceFields": [
                             "Phone"
                         ],
                         "TaskProperties": [
@@ -359,7 +359,7 @@
                                 "Value": "*"
                             }
                         ],
-                        "connectorOperator": {
+                        "ConnectorOperator": {
                             "Salesforce": "MASK_LAST_N"
                         }
                     }
