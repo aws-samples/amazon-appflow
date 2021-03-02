@@ -1,0 +1,274 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Sample CloudFormation Template for AppFlow: Sample template shows how
+  to create a flow with parameters'
+Parameters:
+  flowname:
+    Description: "Name of the flow"
+    Type: String
+    Default: myflow
+  connname:
+    Description: "Salesforce Connection Name"
+    Type: String
+    Default: aws95-dev-ed
+  bucketname: 
+    Description: "Bucket Name"
+    Type: String
+    Default: my-aws-bucket
+  timefield:
+    Description: "Field base to calculate the desired time"
+    Type: String
+    Default: CreatedDate
+  startdate:
+    Description: "Start Date in miliseconds epoch format"
+    Type: Number
+    Default: 1612148400000
+  enddate:
+    Description: "End Date in miliseconds epoch format"
+    Type: Number
+    Default: 1614481200000
+Resources:
+  SFDCFlow:
+    Type: AWS::AppFlow::Flow
+    Properties:
+      Description: AppFlow Flow integrating SFDC Account Data into the Data Lake
+      DestinationFlowConfigList:
+        - ConnectorType: S3
+          DestinationConnectorProperties:
+            S3:
+              BucketName: !Ref bucketname
+              S3OutputFormatConfig:
+                AggregationConfig:
+                  AggregationType: None
+                FileType: CSV
+      FlowName: !Ref flowname
+      SourceFlowConfig:
+        ConnectorProfileName: !Ref connname
+        ConnectorType: Salesforce
+        SourceConnectorProperties:
+          Salesforce:
+            EnableDynamicFieldUpdate: false
+            IncludeDeletedRecords: false
+            Object: OrderItem
+      Tasks:
+        - TaskType: Filter
+          SourceFields:
+            - !Ref timefield
+          ConnectorOperator:
+            Salesforce: BETWEEN
+          TaskProperties:
+            - Key: DATA_TYPE
+              Value: datetime
+            - Key: LOWER_BOUND
+              Value: !Ref startdate
+            - Key: UPPER_BOUND
+              Value: !Ref enddate   
+        - TaskType: Filter
+          SourceFields:
+            - Id
+            - Product2Id
+            - IsDeleted
+            - OrderId
+            - PricebookEntryId
+            - OriginalOrderItemId
+            - AvailableQuantity
+            - Quantity
+            - UnitPrice
+            - TotalPrice
+            - ListPrice
+            - ServiceDate
+            - EndDate
+            - Description
+            - LastModifiedDate
+            - CreatedById
+            - CreatedDate
+          ConnectorOperator:
+            Salesforce: PROJECTION
+        - TaskType: Map
+          SourceFields:
+            - Id
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: Id
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: id
+            - Key: SOURCE_DATA_TYPE
+              Value: id
+        - TaskType: Map
+          SourceFields:
+            - Product2Id
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: Product2Id
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value : reference
+            - Key: SOURCE_DATA_TYPE
+              Value: reference
+        - TaskType: Map
+          SourceFields:
+            - IsDeleted
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: IsDeleted
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: boolean
+            - Key: SOURCE_DATA_TYPE
+              Value: boolean
+        - TaskType: Map
+          SourceFields:
+            - OrderId
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: OrderId
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: reference
+            - Key: SOURCE_DATA_TYPE
+              Value: reference
+        - TaskType: Map
+          SourceFields:
+            - PricebookEntryId
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: PricebookEntryId
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: reference
+            - Key: SOURCE_DATA_TYPE
+              Value: reference
+        - TaskType: Map
+          SourceFields:
+            - OriginalOrderItemId
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: OriginalOrderItemId
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: reference
+            - Key: SOURCE_DATA_TYPE
+              Value: reference
+        - TaskType: Map
+          SourceFields:
+            - AvailableQuantity
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: AvailableQuantity
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: double
+            - Key: SOURCE_DATA_TYPE
+              Value: double
+        - TaskType: Map
+          SourceFields:
+            - Quantity
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: Quantity
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: double
+            - Key: SOURCE_DATA_TYPE
+              Value: double
+        - TaskType: Map
+          SourceFields:
+            - UnitPrice
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: UnitPrice
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: currency
+            - Key: SOURCE_DATA_TYPE
+              Value: currency
+        - TaskType: Map
+          SourceFields:
+            - TotalPrice
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: TotalPrice
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: currency
+            - Key: SOURCE_DATA_TYPE
+              Value: currency
+        - TaskType: Map
+          SourceFields:
+            - ListPrice
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: ListPrice
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: currency
+            - Key: SOURCE_DATA_TYPE
+              Value: currency
+        - TaskType: Map
+          SourceFields:
+            - ServiceDate
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: ServiceDate
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: date
+            - Key: SOURCE_DATA_TYPE
+              Value: date
+        - TaskType: Map
+          SourceFields:
+            - EndDate
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: EndDate
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: date
+            - Key: SOURCE_DATA_TYPE
+              Value: date
+        - TaskType: Map
+          SourceFields:
+            - Description
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: Description
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: string
+            - Key: SOURCE_DATA_TYPE
+              Value: string
+        - TaskType: Map
+          SourceFields:
+            - LastModifiedDate
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: LastModifiedDate
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: datetime
+            - Key: SOURCE_DATA_TYPE
+              Value: datetime
+        - TaskType: Map
+          SourceFields:
+            - CreatedById
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: CreatedById
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: reference
+            - Key: SOURCE_DATA_TYPE
+              Value: reference
+        - TaskType: Map
+          SourceFields:
+            - CreatedDate
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: CreatedDate
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: datetime
+            - Key: SOURCE_DATA_TYPE
+              Value: datetime
+      TriggerConfig:
+        TriggerType: OnDemand
