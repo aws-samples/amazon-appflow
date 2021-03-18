@@ -9,4 +9,5 @@ Here I am going to demonstrate how you can extract conversations from slack usin
 [How to run sentiment analysis on slack data using Amazon AppFlow with Amazon Comprehend](https://youtu.be/fCHkIwbcRtg)
 
 ## SageMaker Notebook
-Notebook Link: https://github.com/aws-samples/amazon-appflow/blob/master/slack-appflow-sentiment/notebooks/slack-sentiment.ipynb
+* [Jupyter Notebook Viewer](https://nbviewer.jupyter.org/github/aws-samples/amazon-appflow/blob/master/slack-appflow-sentiment/notebooks/slack-sentiment.ipynb)
+* Notebook Link: https://github.com/aws-samples/amazon-appflow/blob/master/slack-appflow-sentiment/notebooks/slack-sentiment.ipynb
