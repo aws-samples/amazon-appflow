@@ -62,7 +62,7 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
                     "Ref": "S3Bucket"
                 },
                 "PolicyDocument": {
-                    "Version": "2008-10-17",
+                    "Version": "2012-10-17",
                     "Statement": [
                         {
                             "Effect": "Allow",
@@ -380,8 +380,8 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
                         }
                     },
                     {
-                        "taskType": "Mask",
-                        "sourceFields": [
+                        "TaskType": "Mask",
+                        "SourceFields": [
                             "Phone"
                         ],
                         "TaskProperties": [
@@ -394,7 +394,7 @@ To learn more about how to use AWS CloudFormation to provision and manage Amazon
                                 "Value": "*"
                             }
                         ],
-                        "connectorOperator": {
+                        "ConnectorOperator": {
                             "Salesforce": "MASK_LAST_N"
                         }
                     }
