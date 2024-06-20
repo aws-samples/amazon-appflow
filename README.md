@@ -13,6 +13,7 @@ To learn more about Amazon AppFlow visit: https://aws.amazon.com/appflow/
 | [Upsert Salesforce data into Redshift (private subnet) with S3 work around](sf-appflow-upsert-redshift-lambda/README.md) | Extract salesforce data using Amazon AppFlow and upsert it to Redshift tables hosted on private subnet via Amazon S3|
 | [Setup EventBridge & route Salesforce Events to Lambda](https://aws.amazon.com/blogs/compute/building-salesforce-integrations-with-amazon-eventbridge/) | How to set up the integration, and route Salesforce events to an AWS Lambda function for processing|
 | [AppFlow Relative Time Frame Automation Example ](https://github.com/aws-samples/amazon-appflow/tree/master/appflow-time-automation) | How to calculate the time in # days with lambda to create a Flow filtering data from salesforce. |
+| [AppFlow Terraform Samples ](https://github.com/aws-samples/amazon-appflow/tree/master/appflow-terraform-samples) | Terraform Samples for automated AppFlow Flows deployment. |
 
 ## Demos
 
